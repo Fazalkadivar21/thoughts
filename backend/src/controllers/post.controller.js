@@ -121,7 +121,7 @@ const getPosts = asyncHandler(async (req, res) => {
 		{
 			$lookup: {
 				from: "likes",
-				foreignField: "post",
+				foreignField: "likedItem",
 				localField: "_id",
 				as: "likes",
 			},
