@@ -7,14 +7,19 @@ const likeSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 		},
-		post: {
+		likedItem: {
 			type: mongoose.Schema.Types.ObjectId,
-			ref: "Post",
+			refPath: "onModel", // <- key point
+		},
+		onModel: {
+			type: String,
+			required: true,
+			enum: ["Post", "Reply"],
 		},
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 export const Like = mongoose.model("Like", likeSchema);
