@@ -1,0 +1,22 @@
+{
+  "sidebar": [
+    {
+      "section": "Getting Started",
+      "pages": [
+        { "title": "Introduction", "path": "/introduction" },
+        { "title": "Quickstart", "path": "/quickstart" }
+      ]
+    },
+    {
+      "section": "API Reference",
+      "pages": [
+        { "title": "Auth API", "path": "/api/auth" },
+        { "title": "User API", "path": "/api/user" },
+        { "title": "Post API", "path": "/api/post" },
+        { "title": "Reply API", "path": "/api/reply" },
+        { "title": "Follower API", "path": "/api/follower" },
+        { "title": "Like API", "path": "/api/like" }
+      ]
+    }
+  ]
+}
