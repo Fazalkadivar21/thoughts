@@ -4,7 +4,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Post } from "../models/post.model.js";
 import { Like } from "../models/like.model.js";
-import { pipeline } from "stream";
 import { User } from "../models/user.model.js";
 
 //addPost
@@ -53,6 +52,8 @@ const deletePost = asyncHandler(async (req, res) => {
     */
 
 	const { postId } = req.body;
+	if (!postId) throw new ApiError(400, "Post ID is required");
+
 
 	const post = await Post.findByIdAndDelete(postId);
 	if (!post) throw new ApiError(404, "Post not found.");
@@ -60,7 +61,8 @@ const deletePost = asyncHandler(async (req, res) => {
 	const likes = await Like.aggregate([
 		({
 			$match: {
-				post: postId,
+				likedItem: postId,
+				onModel : "Post"
 			},
 		},
 		{
@@ -78,7 +80,7 @@ const deletePost = asyncHandler(async (req, res) => {
 	}
 
 	if (post.media.length) {
-		const del = Promise.all(
+		const del = await Promise.all(
 			post.media.map(async (ary) => {
 				await deleteOnCloudinary(ary.mediaUrl);
 			}),
@@ -187,6 +189,8 @@ const updatePost = asyncHandler(async (req, res) => {
 		5. return the res
 		*/
 	const { postId, content, removeMedia } = req.body;
+	if (!postId) throw new ApiError(400, "Post ID is required");
+
 	const mediaLocalPath = req.files?.map((item) => item?.path) || [];
 	const data = {};
 
@@ -221,7 +225,8 @@ const updatePost = asyncHandler(async (req, res) => {
 	}
 
 	if (content.trim()) data.content = content;
-	if (media.length > 0) data.media = [...keep, ...media];
+	if (media && media.length > 0 && mediaLocalPath.length ) data.media = [...keep, ...media] 
+    else data.media = [...keep]
 
 	const post = await Post.findByIdAndUpdate(
 		postId,
