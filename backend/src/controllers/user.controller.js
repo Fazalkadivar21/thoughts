@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import { uploadOnCloudinary, deleteOnCloudinary } from "../utils/cloudinary.js";
 import { generateAndSetTokens } from "../utils/genrateTokens.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 //NOTE - register user
 const register = asyncHandler(async (req, res) => {
@@ -292,6 +293,16 @@ const getUser = asyncHandler(async (req, res) => {
 			},
 		},
 		{
+			$addFields: {
+				isFollowing: {
+					$in: [
+						req.user._id,
+						"$followers.followedBy",
+					],
+				},
+			},
+		},
+		{
 			$lookup: {
 				from: "followers",
 				localField: "_id",
@@ -308,6 +319,7 @@ const getUser = asyncHandler(async (req, res) => {
 				coverImage: 1,
 				followers: { $size: "$followers" },
 				following: { $size: "$following" },
+				isFollowing : 1
 			},
 		},
 	]);
