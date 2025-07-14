@@ -24,6 +24,49 @@ This is the backend API for the Thoughts application, a platform for sharing you
 *   **Cors:** Middleware for enabling Cross-Origin Resource Sharing
 *   **Dotenv:** Module for loading environment variables from a `.env` file
 
+## Project Structure
+
+```
+.
+├── src
+│   ├── app.js
+│   ├── controllers
+│   │   ├── follower.controller.js
+│   │   ├── like.controller.js
+│   │   ├── post.controller.js
+│   │   ├── reply.controller.js
+│   │   └── user.controller.js
+│   ├── db
+│   │   └── index.js
+│   ├── index.js
+│   ├── middleware
+│   │   ├── auth.middleware.js
+│   │   └── multer.middleware.js
+│   ├── models
+│   │   ├── follower.model.js
+│   │   ├── like.model.js
+│   │   ├── post.model.js
+│   │   ├── reply.model.js
+│   │   └── user.model.js
+│   ├── routes
+│   │   ├── follower.routes.js
+│   │   ├── like.routes.js
+│   │   ├── post.routes.js
+│   │   ├── reply.routes.js
+│   │   └── user.routes.js
+│   └── utils
+│       ├── ApiError.js
+│       ├── ApiResponse.js
+│       ├── asyncHandler.js
+│       ├── cloudinary.js
+│       └── genrateTokens.js
+├── .env.example
+├── .gitignore
+├── package.json
+├── pnpm-lock.yaml
+└── README.md
+```
+
 ## Getting Started
 
 ### Prerequisites
@@ -96,47 +139,602 @@ The following are the available API endpoints:
 
 For detailed information about the available routes for each endpoint, please refer to the `src/routes` directory.
 
-## Project Structure
+### User API
 
+**Register a new user**
+
+*   **URL:** `/api/v1/users/register`
+*   **Method:** `POST`
+*   **Body:**
+
+```json
+{
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "password123",
+    "fullName": "Test User"
+}
 ```
-.
-├── src
-│   ├── app.js
-│   ├── controllers
-│   │   ├── follower.controller.js
-│   │   ├── like.controller.js
-│   │   ├── post.controller.js
-│   │   ├── reply.controller.js
-│   │   └── user.controller.js
-│   ├── db
-│   │   └── index.js
-│   ├── index.js
-│   ├── middleware
-│   │   ├── auth.middleware.js
-│   │   └── multer.middleware.js
-│   ├── models
-│   │   ├── follower.model.js
-│   │   ├── like.model.js
-│   │   ├── post.model.js
-│   │   ├── reply.model.js
-│   │   └── user.model.js
-│   ├── routes
-│   │   ├── follower.routes.js
-│   │   ├── like.routes.js
-│   │   ├── post.routes.js
-│   │   ├── reply.routes.js
-│   │   └── user.routes.js
-│   └── utils
-│       ├── ApiError.js
-│       ├── ApiResponse.js
-│       ├── asyncHandler.js
-│       ├── cloudinary.js
-│       └── genrateTokens.js
-├── .env.example
-├── .gitignore
-├── package.json
-├── pnpm-lock.yaml
-└── README.md
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "fullName": "Test User",
+        "avatar": "http://res.cloudinary.com/...",
+        "coverImage": "http://res.cloudinary.com/...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "User created successfully",
+    "success": true
+}
+```
+
+**Login a user**
+
+*   **URL:** `/api/v1/users/login`
+*   **Method:** `POST`
+*   **Body:**
+
+```json
+{
+    "email": "testuser@example.com",
+    "password": "password123"
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "fullName": "Test User",
+        "avatar": "http://res.cloudinary.com/...",
+        "coverImage": "http://res.cloudinary.com/...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Logged in successfully",
+    "success": true
+}
+```
+
+**Logout a user**
+
+*   **URL:** `/api/v1/users/logout`
+*   **Method:** `POST`
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {},
+    "message": "Logged out successfully",
+    "success": true
+}
+```
+
+**Change user password**
+
+*   **URL:** `/api/v1/users/change-password`
+*   **Method:** `POST`
+*   **Body:**
+
+```json
+{
+    "currentPassword": "password123",
+    "newPassword": "newpassword123"
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {},
+    "message": "Password updated successfully",
+    "success": true
+}
+```
+
+**Refresh access token**
+
+*   **URL:** `/api/v1/users/refreshtokens`
+*   **Method:** `POST`
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "fullName": "Test User",
+        "avatar": "http://res.cloudinary.com/...",
+        "coverImage": "http://res.cloudinary.com/...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Tokens refreshed",
+    "success": true
+}
+```
+
+**Get user details**
+
+*   **URL:** `/api/v1/users/:username`
+*   **Method:** `GET`
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": [
+        {
+            "_id": "...",
+            "username": "testuser",
+            "fullName": "Test User",
+            "bio": "This is a test user.",
+            "avatar": "http://res.cloudinary.com/...",
+            "coverImage": "http://res.cloudinary.com/...",
+            "followers": 0,
+            "following": 0,
+            "isFollowing": false
+        }
+    ],
+    "message": "User details fetched successfully.",
+    "success": true
+}
+```
+
+**Update user avatar**
+
+*   **URL:** `/api/v1/users/update-avatar`
+*   **Method:** `PATCH`
+*   **Body:** `multipart/form-data` with a single field `avatar` containing the image file.
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "fullName": "Test User",
+        "avatar": "http://res.cloudinary.com/...",
+        "coverImage": "http://res.cloudinary.com/...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Avatar changed",
+    "success": true
+}
+```
+
+**Update user cover image**
+
+*   **URL:** `/api/v1/users/update-coverImage`
+*   **Method:** `PATCH`
+*   **Body:** `multipart/form-data` with a single field `coverImage` containing the image file.
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "fullName": "Test User",
+        "avatar": "http://res.cloudinary.com/...",
+        "coverImage": "http://res.cloudinary.com/...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "cover Image changed",
+    "success": true
+}
+```
+
+**Update user details**
+
+*   **URL:** `/api/v1/users/update-user`
+*   **Method:** `PATCH`
+*   **Body:**
+
+```json
+{
+    "username": "newtestuser",
+    "fullName": "New Test User",
+    "bio": "This is the new bio."
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "username": "newtestuser",
+        "email": "testuser@example.com",
+        "fullName": "New Test User",
+        "avatar": "http://res.cloudinary.com/...",
+        "coverImage": "http://res.cloudinary.com/...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "User data updated.",
+    "success": true
+}
+```
+
+### Post API
+
+**Add a new post**
+
+*   **URL:** `/api/v1/posts/add`
+*   **Method:** `POST`
+*   **Body:** `multipart/form-data` with fields `content` (text) and `media` (up to 5 files).
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 201,
+    "data": {
+        "content": "This is a new post.",
+        "media": [
+            {
+                "mediaUrl": "http://res.cloudinary.com/..."
+            }
+        ],
+        "owner": "...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Post created successfully",
+    "success": true
+}
+```
+
+**Delete a post**
+
+*   **URL:** `/api/v1/posts/delete`
+*   **Method:** `DELETE`
+*   **Body:**
+
+```json
+{
+    "postId": "..."
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {},
+    "message": "Post deleted successfully",
+    "success": true
+}
+```
+
+**Get user posts**
+
+*   **URL:** `/api/v1/posts/:username`
+*   **Method:** `GET`
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": [
+        {
+            "_id": "...",
+            "content": "This is a post.",
+            "owner": {
+                "_id": "...",
+                "username": "testuser",
+                "avatar": "http://res.cloudinary.com/...",
+                "fullName": "Test User"
+            },
+            "media": [],
+            "likes": 0,
+            "replies": 0
+        }
+    ],
+    "message": "Posts fetched successfully",
+    "success": true
+}
+```
+
+**Update a post**
+
+*   **URL:** `/api/v1/posts/update`
+*   **Method:** `PATCH`
+*   **Body:** `multipart/form-data` with fields `postId` (string), `content` (string), `removeMedia` (string or array of strings), and `media` (up to 5 files).
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "_id": "...",
+        "content": "This is the updated post content.",
+        "owner": "...",
+        "media": [],
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Post updated successfully",
+    "success": true
+}
+```
+
+### Reply API
+
+**Add a new reply**
+
+*   **URL:** `/api/v1/replies/add`
+*   **Method:** `POST`
+*   **Body:** `multipart/form-data` with fields `content` (text), `postId` (string), and `media` (up to 5 files).
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 201,
+    "data": {
+        "post": "...",
+        "content": "This is a reply.",
+        "media": [],
+        "owner": "...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Reply created successfully",
+    "success": true
+}
+```
+
+**Get post replies**
+
+*   **URL:** `/api/v1/replies/:postId`
+*   **Method:** `GET`
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": [
+        {
+            "_id": "...",
+            "content": "This is a reply.",
+            "owner": {
+                "_id": "...",
+                "username": "testuser",
+                "avatar": "http://res.cloudinary.com/...",
+                "fullName": "Test User"
+            },
+            "media": [],
+            "likes": 0
+        }
+    ],
+    "message": "Replies fetched successfully",
+    "success": true
+}
+```
+
+**Update a reply**
+
+*   **URL:** `/api/v1/replies/update`
+*   **Method:** `PATCH`
+*   **Body:** `multipart/form-data` with fields `replyId` (string), `content` (string), `removeMedia` (string or array of strings), and `media` (up to 5 files).
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "_id": "...",
+        "post": "...",
+        "content": "This is the updated reply content.",
+        "owner": "...",
+        "media": [],
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Reply updated successfully",
+    "success": true
+}
+```
+
+**Delete a reply**
+
+*   **URL:** `/api/v1/replies/delete`
+*   **Method:** `DELETE`
+*   **Body:**
+
+```json
+{
+    "replyId": "..."
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {},
+    "message": "Reply deleted successfully",
+    "success": true
+}
+```
+
+### Like API
+
+**Toggle a like on a post or reply**
+
+*   **URL:** `/api/v1/likes/toggle-like`
+*   **Method:** `POST`
+*   **Body:**
+
+```json
+{
+    "postId": "..." 
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {},
+    "message": "Liked successfully",
+    "success": true
+}
+```
+
+### Follower API
+
+**Toggle a follow on a user**
+
+*   **URL:** `/api/v1/followers/toggle-follow`
+*   **Method:** `POST`
+*   **Body:**
+
+```json
+{
+    "userId": "...",
+    "isFollowing": false
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "followedBy": "...",
+        "followedTo": "...",
+        "_id": "...",
+        "createdAt": "...",
+        "updatedAt": "..."
+    },
+    "message": "Followed user successfully",
+    "success": true
+}
+```
+
+**Get user followers**
+
+*   **URL:** `/api/v1/followers/get-followers`
+*   **Method:** `GET`
+*   **Body:**
+
+```json
+{
+    "requestedUserId": "..."
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "docs": [
+            {
+                "follower": {
+                    "_id": "...",
+                    "username": "testuser2",
+                    "fullName": "Test User 2",
+                    "avatar": "http://res.cloudinary.com/..."
+                },
+                "isFollowing": true
+            }
+        ],
+        "totalDocs": 1,
+        "limit": 15,
+        "page": 1,
+        "totalPages": 1,
+        "pagingCounter": 1,
+        "hasPrevPage": false,
+        "hasNextPage": false,
+        "prevPage": null,
+        "nextPage": null
+    },
+    "message": "followers fetched",
+    "success": true
+}
+```
+
+**Get user following**
+
+*   **URL:** `/api/v1/followers/get-following`
+*   **Method:** `GET`
+*   **Body:**
+
+```json
+{
+    "requestedUserId": "..."
+}
+```
+
+*   **Response:**
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "docs": [
+            {
+                "following": {
+                    "_id": "...",
+                    "username": "testuser3",
+                    "fullName": "Test User 3",
+                    "avatar": "http://res.cloudinary.com/..."
+                },
+                "isFollowing": false
+            }
+        ],
+        "totalDocs": 1,
+        "limit": 15,
+        "page": 1,
+        "totalPages": 1,
+        "pagingCounter": 1,
+        "hasPrevPage": false,
+        "hasNextPage": false,
+        "prevPage": null,
+        "nextPage": null
+    },
+    "message": "followings fetched",
+    "success": true
+}
 ```
 
 ## Contributing
